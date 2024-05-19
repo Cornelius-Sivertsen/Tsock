@@ -24,7 +24,7 @@
 #define DEF_NOMBRE_MESSAGES 10
 #define DEF_LONGUEUR_MESSAGES 30
 
-//Fonction qui retourne le n-ieme chiffre d'un nombre. n=0 signifie 10^0.
+//Fonction qui retourne le n-ieme chiffre d'un nombre. n=0 signifie 10^0 (le plus pétit chiffre).
 int chiffre(int nombre, int n){
 		int diviseur = (int) pow(10.0,(double) n);  
 		nombre /= diviseur;
@@ -244,20 +244,18 @@ int main(int argc, char **argv){
 						//boucle pour recevoir et afficher les messages
 						int i;
 						for (i=0; i<nb_message; i++){
-								int check = recvfrom(sock,pmesg,taille_max,0,padr_em,plg_adr_em);
-								if (check<0){
+								int longueur_message_recu = recvfrom(sock,pmesg,taille_max,0,padr_em,plg_adr_em);
+								if (longueur_message_recu<0){
 										printf("Pas bon pour le recvfrom nr. %i\n", i);
 								}
 								else {
-										printf("%s\n", pmesg);
+										printf("PUITS: Reception nr. %i (%i) [%s]\n",i+1,longueur_message_recu, pmesg);
 								}
 						}
 				}//Fin puits (UDP)
 			int close_check = close(sock);
 			if (close_check < 0) printf("Erreur de fermeture du socket\n");
 		}//Fin UDP
-
-
 		return 0;
 }
 
