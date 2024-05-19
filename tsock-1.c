@@ -152,6 +152,7 @@ int main(int argc, char **argv){
 				//Affichage de nombre de messages à récevoir
 				if (nb_message == -1){
 						printf("Nombre de messages à récevoir : infini, par defaut\n");
+						nb_message = 10000000;
 				}
 				else{
 						printf("Nombre de messages à récevoir : %i\n", nb_message);
@@ -183,6 +184,80 @@ int main(int argc, char **argv){
 				}
 		}
 #endif
+
+
+		//Partie UPD Source/Puits
+		if (Protocole == UDP){
+
+				//Creation du socket, commune pour source et puits
+				int sock = socket(AF_INET,SOCK_DGRAM,0);
+				if (sock < 0) {printf("Le creation du socket a echoue\n");}
+
+				//Partie Source (UDP)
+				if (Source_ou_puits == source){
+						//Construction de l'adresse destinataire
+						struct sockaddr_in adresse_destinataire; //Struct pour l'adresse du machine destinataire.
+						adresse_destinataire.sin_family = AF_INET;
+						adresse_destinataire.sin_port = htons(atoi(argv[argc-1])); //Numéro de port destinataire.
+
+						struct hostent * machinedest;
+						if ((machinedest = gethostbyname(argv[argc-2])) == NULL) //"Nom" du machine destinataire
+						{ printf("erreur gethostbyname\n") ; 
+								exit(1) ; } 
+						memcpy( (char*)&(adresse_destinataire.sin_addr.s_addr),
+										machinedest->h_addr, 
+										machinedest->h_length ) ;
+
+						//Construction et envoi des messages
+						//message stocke le string à envoyer à chaque tour de la boucle
+						char message[longueur_message + 1]; //+1 Pour le \0 à la fin
+						int taille_message = longueur_message * sizeof(char);
+
+						int i;
+						for (i=0;i<nb_message;i++){ //Boucle pour construire et envoyer les messages
+								construire_message(message, Alphabet[i % 26], longueur_message, i+1);
+								int lg_emis = sendto(sock,message,taille_message,0,(struct sockaddr*)&adresse_destinataire,sizeof(adresse_destinataire));
+								if (lg_emis < 0){
+										printf("Le message nr. %i ne s'est pas envoyé\n", i+1);
+										exit(1);
+								}
+								else{
+										printf("Succes d'envoi numéro %i\n", i+1);
+								}
+						}
+				}//Fin source UDP
+				 
+				//Partie puits (UDP)
+				else if (Source_ou_puits == puits){
+						struct sockaddr_in adresse_locale; //Adresse locale
+						adresse_locale.sin_port = htons(atoi(argv[argc-1])); //Numéro de port
+						adresse_locale.sin_family=AF_INET;
+						adresse_locale.sin_addr.s_addr=INADDR_ANY;
+
+						bind(sock,(struct sockaddr*)&adresse_locale,sizeof(adresse_locale)); //Bind
+						int taille_max = 100*sizeof(char);
+						unsigned int adresse_emetteur = 0;
+						unsigned int *plg_adr_em = &adresse_emetteur;
+						char *pmesg=malloc(taille_max); //String pour stocker message recu
+						struct sockaddr *padr_em=malloc(sizeof(struct sockaddr_in));
+
+						//boucle pour recevoir et afficher les messages
+						int i;
+						for (i=0; i<nb_message; i++){
+								int check = recvfrom(sock,pmesg,taille_max,0,padr_em,plg_adr_em);
+								if (check<0){
+										printf("Pas bon pour le recvfrom nr. %i\n", i);
+								}
+								else {
+										printf("%s\n", pmesg);
+								}
+						}
+				}//Fin puits (UDP)
+			int close_check = close(sock);
+			if (close_check < 0) printf("Erreur de fermeture du socket\n");
+		}//Fin UDP
+
+
 		return 0;
 }
 
