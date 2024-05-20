@@ -294,11 +294,11 @@ int main(int argc, char **argv){
 								}
 						}
 						/*
-						char eof = '\0';
-						char *ptr_eof = &eof;
-						int taille = sizeof(char);
-						write(sock,ptr_eof,taille);
-						*/
+						   char eof = '\0';
+						   char *ptr_eof = &eof;
+						   int taille = sizeof(char);
+						   write(sock,ptr_eof,taille);
+						   */
 						if (shutdown(sock, SHUT_RDWR)<0){printf("échec de fermeture de connexion sock accept\n");}
 						if (close(sock)<0){printf("échec de fermeture de connexion sock\n");}
 				}//Fin source TCP
@@ -344,9 +344,9 @@ int main(int argc, char **argv){
 						int j;
 
 						for (j=0;j<nbr_messages_lu;j++){
-										printf("PUITS: Reception nr. %i (%i) ",j+1, longueur_message);
-										afficher_message(pmesg + j*longueur_message, longueur_message);
-										printf("\n");
+								printf("PUITS: Reception nr. %i (%i) ",j+1, longueur_message);
+								afficher_message(pmesg + j*longueur_message, longueur_message);
+								printf("\n");
 						}
 
 
