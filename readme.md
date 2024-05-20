@@ -11,4 +11,3 @@ Le projet consiste de:
 - tsock_v3
 - un librairie qui gère la partie liste chainée de la BAL.
 
-TEST!
