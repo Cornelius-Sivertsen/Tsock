@@ -1,3 +1,4 @@
+//TEST
 /* librairie standard ... */
 #include <stdlib.h>
 /* pour getopt */
