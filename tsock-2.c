@@ -60,9 +60,9 @@ void construire_message(char* message, char motif, int lg, int nbr){
 //Fonction pour afficher un message:
 void afficher_message(char* message, int lg){
 		int i;
-		printf("message construit: ");
+		printf("[");
 		for (i=0;i<lg;i++) printf("%c",message[i]);
-		printf("\n");
+		printf("]");
 }
 
 //Pour constuire les messages.
@@ -152,12 +152,20 @@ int main(int argc, char **argv){
 				//Affichage de nombre de messages à récevoir
 				if (nb_message == -1){
 						printf("Nombre de messages à récevoir : infini, par defaut\n");
-						nb_message = 10000000;
+						nb_message = 100000;
 				}
 				else{
 						printf("Nombre de messages à récevoir : %i\n", nb_message);
 				}
-				
+				if (longueur_message == -1){
+						printf("Longueur de messages à récevoir : 30, par defaut\n");
+						longueur_message = 30;
+				}
+				else{
+						printf("Longueur de messages à récevoir : %i\n", longueur_message);
+				}
+
+
 				//Affichage de port d'entrée
 				printf("Numéro de port d'entrée: %i | VERIFIEZ\n", atoi(argv[argc-1]));
 		}
@@ -169,22 +177,6 @@ int main(int argc, char **argv){
 		else{
 				printf("Protocole : UDP\n");
 		}
-
-
-
-//#define TEST_CONSTRUIRE_MESSAGES
-#ifdef TEST_CONSTRUIRE_MESSAGES
-
-		if (Source_ou_puits == source){
-				int j;
-				for (j=0;j<nb_message;j++){
-						char message[longueur_message + 1];
-						construire_message(message, Alphabet[j % 26], longueur_message, j+1);
-						printf("%s\n", message);
-				}
-		}
-#endif
-
 
 		//Partie UPD Source/Puits
 		if (Protocole == UDP){
@@ -219,14 +211,13 @@ int main(int argc, char **argv){
 								int lg_emis = sendto(sock,message,taille_message,0,(struct sockaddr*)&adresse_destinataire,sizeof(adresse_destinataire));
 								if (lg_emis < 0){
 										printf("Le message nr. %i ne s'est pas envoyé\n", i+1);
-										exit(1);
 								}
 								else{
 										printf("Succes d'envoi numéro %i\n", i+1);
 								}
 						}
 				}//Fin source UDP
-				 
+
 				//Partie puits (UDP)
 				else if (Source_ou_puits == puits){
 						struct sockaddr_in adresse_locale; //Adresse locale
@@ -252,10 +243,121 @@ int main(int argc, char **argv){
 										printf("PUITS: Reception nr. %i (%i) [%s]\n",i+1,longueur_message_recu, pmesg);
 								}
 						}
+						free(padr_em);
+						free(pmesg);
 				}//Fin puits (UDP)
-			int close_check = close(sock);
-			if (close_check < 0) printf("Erreur de fermeture du socket\n");
+				int close_check = close(sock);
+				if (close_check < 0) printf("Erreur de fermeture du socket\n");
 		}//Fin UDP
+
+		//Partie TCP source/puits
+		else if (Protocole == TCP){
+
+				//Creation du socket, commune pour source et puits
+				int sock = socket(AF_INET,SOCK_STREAM,0);
+				if (sock < 0) {printf("Le creation du socket a echoue\n");}
+
+				//Partie source TCP
+				if (Source_ou_puits == source){
+
+						//Construction de l'adresse destinataire
+						struct sockaddr_in adresse_destinataire; //Struct pour l'adresse du machine destinataire.
+						adresse_destinataire.sin_family = AF_INET;
+						adresse_destinataire.sin_port = htons(atoi(argv[argc-1])); //Numéro de port destinataire.
+
+						struct hostent * machinedest;
+						if ((machinedest = gethostbyname(argv[argc-2])) == NULL) //"Nom" du machine destinataire
+						{ printf("erreur gethostbyname\n") ; 
+								exit(1) ; } 
+						memcpy( (char*)&(adresse_destinataire.sin_addr.s_addr),
+										machinedest->h_addr, 
+										machinedest->h_length ) ;
+						int check_connexion = connect(sock,(struct sockaddr*) &adresse_destinataire, sizeof(adresse_destinataire));
+						if (check_connexion < 0){
+								printf("erreur de connexion au serveur, envoie du message impossible\n");
+						}
+
+						//Construction et envoie des messages
+						char message[longueur_message + 1]; //+1 Pour le \0 à la fin
+						int taille_message = longueur_message * sizeof(char);
+
+						int i;
+						for (i=0;i<nb_message;i++){//Boucle pour construire et envoyer les messages.
+								construire_message(message, Alphabet[i % 26], longueur_message, i+1);
+								printf("Envoi nr. %i: %s\n", i+1, message);
+								int lg_emis = write(sock, message, taille_message);
+								if (lg_emis < 0){
+										printf("le message %i ne s'est pas envoyé\n", i+1);
+								}
+								else{
+										printf("Succes d'envoi numéro %i\n", i+1);
+								}
+						}
+						/*
+						char eof = '\0';
+						char *ptr_eof = &eof;
+						int taille = sizeof(char);
+						write(sock,ptr_eof,taille);
+						*/
+						if (shutdown(sock, SHUT_RDWR)<0){printf("échec de fermeture de connexion sock accept\n");}
+						if (close(sock)<0){printf("échec de fermeture de connexion sock\n");}
+				}//Fin source TCP
+
+				//Partie puits TCP
+				else if (Source_ou_puits == puits){
+
+						//Creation de l'adresse locale
+						struct sockaddr_in adresse_locale;
+						adresse_locale.sin_port = htons(atoi(argv[argc-1]));
+						adresse_locale.sin_family=AF_INET;
+						adresse_locale.sin_addr.s_addr=INADDR_ANY;
+
+						bind(sock,(struct sockaddr*) &adresse_locale,sizeof(adresse_locale));
+
+						if (listen(sock, 10)<0){printf("acceptation de la connexion niveau serveur a échoué\n");}
+
+						socklen_t adr_em = sizeof(struct sockaddr);
+						socklen_t *plg_adr_em = &adr_em;
+						struct sockaddr *padr_em=malloc(sizeof(struct sockaddr_in));
+
+						int sock_accept;
+						sock_accept = accept(sock,padr_em,plg_adr_em);
+						if (sock_accept <0 ){
+								printf("échec d'acceptation de la connexion au serveur\n");
+						}
+
+						char pmesg[100000];
+						int taille_max = sizeof(pmesg);
+						int nbr_messages_lu = 0;
+
+						ssize_t read_accept = 1;
+						while (read_accept !=0){
+								read_accept = read(sock_accept,pmesg + nbr_messages_lu, taille_max-nbr_messages_lu);
+								nbr_messages_lu += read_accept;
+						}
+
+						nbr_messages_lu /= longueur_message;
+						if (nbr_messages_lu>nb_message){
+								nbr_messages_lu = nb_message;
+						}
+
+						int j;
+
+						for (j=0;j<nbr_messages_lu;j++){
+										printf("PUITS: Reception nr. %i (%i) ",j+1, longueur_message);
+										afficher_message(pmesg + j*longueur_message, longueur_message);
+										printf("\n");
+						}
+
+
+
+						free(padr_em);
+
+						if (shutdown(sock_accept, SHUT_RDWR)<0){printf("échec de shutdown de connexion sock accept\n");}
+						if (close(sock_accept)<0){printf("échec de fermeture de connexion sock accept\n");}
+						if (shutdown(sock, SHUT_RDWR)<0){printf("échec de shutdown de connexion sock\n");}
+						if (close(sock)<0){printf("échec de fermeture de connexion sock\n");}
+				}//Fin puits TCP
+		}//Fin TCP source/puits
 		return 0;
 }
-
