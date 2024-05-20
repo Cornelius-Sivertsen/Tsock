@@ -1,9 +1,9 @@
 /*
-Librarie qui implemente la partie liste chainée de la projet boite
+Librarie qui implemente la partie liste chainée du projet boite
 aux lettres en Reseaux-C.
 La librarie contient les structs utilisées dans les listes chainées, et les
-fonctions utilisées pour les manipuler, et pour debougger les problèmes eventuelles.
-En fonctionnement normale, la programme principale ne fait appel qu'aux deux
+fonctions utilisées pour les manipuler, et pour débuger les problèmes éventuelles.
+En fonctionnement normal, la programme principal ne fait appel qu'à deux
 fonctions: insererLettres et enleverLettre, pour rajouter et enlever des lettres respectivement.
  */
 #ifndef _libBAL_
@@ -35,20 +35,20 @@ typedef struct BAL{
 } BAL;
 
 
-//Fonction qui ajoute un suite des lettres à la fin d'une boite ciblée,
-//rajoutant la boite si elle n'existe pas déjà. La fonction decoupe un string contient
+//Fonction qui ajoute une suite de lettres à la fin d'une boite ciblée,
+//rajoutant la boite si elle n'existe pas déjà. La fonction découpe un string contient
 //toutes les lettres.
 //
-//Paramètres d'entrée:
+//Paramètres d'entrées:
 //tete: Pointeur sur la structure qui pointe sur la première boite dans la liste.
 //mesg: Pointeur sur la chaine de caractères contient toutes les lettres.
 //cible: La boite de lettres ciblée.
-//nbr_messages: Nombre des lettres contenu dans mesg
-//long_messages: Longueur de chaqune de lettres.
+//nbr_messages: Nombre des lettres contenues dans mesg
+//long_messages: Longueur de chacune des lettres.
 void insererLettres(struct BAL* tete, char* mesg, int cible, int nbr_messages, int long_messages);
 
 
-//Fonction qui enlève la première lettre dans un boite (suppression au début de la liste)
+//Fonction qui enlève la première lettre dans une boite (suppression au début de la liste)
 //La chaine des caractères contenu dans la lettre est stocké dans la chaine
 //LettreSortie.
 //
@@ -67,13 +67,13 @@ int enleverLettre(struct BAL tete, int cible, char* LettreSortie);
 //Fonction qui rajoute un boite vide à la fin de la liste des boites.
 //Si la boite existe déjà dans la liste, la fonction ne fait rien.
 //
-//Paramètres d'entrée:
-//BAL: Pointeur sur la struct qui pointe vers la tete de la liste dans lequel
+//Paramètres d'entrés:
+//BAL: Pointeur sur la struct qui pointe vers la tete de la liste dans laquelle
 //on va ajouter une boite.
 //Cible: le numéro de boite de la boite que l'on va ajouter.
 //
-//Valeur retourné:
-//Nombre des boites dans la liste après le rajout dans le cas où on ajoue un boite, -1 dans le cas où le boite était déjà dans la liste (aucun rajout).
+//Valeur retournée:
+//Nombre des boites dans la liste après le rajout dans le cas où on ajoute un boite, -1 dans le cas où le boite était déjà dans la liste (aucun rajout).
 int ajouteBoite(struct BAL * BAL, int cible);
 
 
@@ -84,20 +84,20 @@ int ajouteBoite(struct BAL * BAL, int cible);
 //Paramètres d'entrée:
 //Head: double pointeur sur la première lettre dans la liste cible.
 //mesg: pointeur sur la chaine des caractères qui sera stocké dans la lettre.
-//On rappele que la longueur maximale des lettres est defini dans la constante
+//On rappele que la longueur maximale des lettres est definie dans la constante
 //LONGUEURLETTRESMAX
 void ajouteLettre(struct lettreCellule** head, char* mesg);
 
 
-//Fonction qui affiche toutes les boites dans un liste des boites,
+//Fonction qui affiche toutes les boites dans une liste des boites,
 //avec leur numéro de boite, et combien lettres elles contiennent.
-//Outil pour debouggage.
+//Outil pour debeugage.
 //
 //Paramètre d'entrée:
 //Tete: Struct qui pointe vers la tete de la liste que l'on va afficher.
 void afficherBoites(struct BAL tete);
 
-//Fonction qui affiche toutes les lettres dans un liste des lettres pour une boite ciblée.
+//Fonction qui affiche toutes les lettres dans une liste des lettres pour une boite ciblée.
 //
 //Paramètres d'entrée:
 //tete: structure qui pointe sur la première boite des lettres
