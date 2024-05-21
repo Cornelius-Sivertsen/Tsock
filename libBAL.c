@@ -205,17 +205,13 @@ void insererLettres(struct BAL* tete, char* mesg, int cible, int nbr_messages, i
 
 		char Lettre[long_messages+1]; //Variable utilisées pour couper le string d'entrée en lettres individuels
 		int i; 
-		int j;
 		for (i=0;i<nbr_messages;i++)
 		{
 				strncpy(Lettre,(mesg+i*long_messages),long_messages);
 				Lettre[long_messages] = '\0';
 				ajouteLettre(head,Lettre);
 				(aux -> nombre_des_lettres)++;
-				//printf("Letter number %i added to box %i\n", i, cible);
 		}
-		printf("Done adding letters to box %i\n", cible);
-		printf("Box %i now contains %i letters\n", cible, (aux -> nombre_des_lettres));
 } 
 
 
@@ -234,7 +230,7 @@ void insererLettres(struct BAL* tete, char* mesg, int cible, int nbr_messages, i
 //-3 Si la boite existe, mais elle est vide.
 int enleverLettre(BAL tete, int cible, char* LetterOut)
 {
-		if (tete.premiere_Boite == NULL) {printf("\nIl n'y a aucune boite dans la liste!\n"); return -2;}
+		if (tete.premiere_Boite == NULL) {return -2;}
 
 		boiteCellule* aux = tete.premiere_Boite;
 
@@ -244,7 +240,7 @@ int enleverLettre(BAL tete, int cible, char* LetterOut)
 		}
 		//Aux pointe soit sur la boîte ciblée soit sur la dernière boîte. Si il ne pointe pas sur la boîte ciblée, cela veut dire qu'elle n'existe pas
 
-		if (!(aux -> nbr_boite == cible)) {printf("\nLa boite cible n'est pas dans la liste!\n"); return -1;}
+		if (!(aux -> nbr_boite == cible)) {return -1;}
 
 		if (aux -> premLettre == NULL) return -3; //Vérifie si la boîte est vide
 		else
