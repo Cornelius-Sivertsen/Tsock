@@ -57,7 +57,7 @@ Source :
 
   2) Compiler tsock-v3
   ```
-  gcc -Wextra -Wall -o tsock-v3.exe tsock-v3.c libBAL.o -lm
+  gcc -Wextra -Wall -o tsock-v3.exe tsock-v.c libBAL.o -lm
   
   ```
 
