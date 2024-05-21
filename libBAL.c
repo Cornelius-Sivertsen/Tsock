@@ -206,9 +206,16 @@ void insererLettres(struct BAL* tete, char* mesg, int cible, int nbr_messages, i
 
 		char Lettre[long_messages+1]; //Variable used for slicing the input string into individual letters.
 		int i; 
+		int j;
 		for (i=0;i<nbr_messages;i++)
 		{
 				strncpy(Lettre,(mesg+i*long_messages),long_messages);
+
+				//TODO: for (j=0;
+
+				
+
+
 				Lettre[long_messages] = '\0';
 				ajouteLettre(head,Lettre);
 				(aux -> nombre_des_lettres)++;
@@ -254,6 +261,7 @@ int enleverLettre(BAL tete, int cible, char* LetterOut)
 				lettreCellule* cellule_qui_sera_enleve = aux -> premLettre;
 				(aux -> premLettre) = aux ->premLettre -> prochaineLettre;
 				free(cellule_qui_sera_enleve);
+				aux -> nombre_des_lettres--;
 		}
 
 
