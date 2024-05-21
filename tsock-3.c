@@ -1,5 +1,3 @@
-//TODO: remove -n -l for recepteur
-//TODO: fix BAL doing too many loops when BAL is empty
 /* librairie standard ... */
 #include <stdlib.h>
 /* pour getopt */
@@ -139,7 +137,7 @@ int main(int argc, char **argv){
 		}
 		else if (Programme == emetteur) {
 				printf("On est dans l'emetteur\n");
-				
+
 				//Affectuation de valeur défaut pour nombre de messages.
 				if (nb_message == -1){
 						nb_message = DEF_NOMBRE_MESSAGES;
@@ -147,7 +145,7 @@ int main(int argc, char **argv){
 
 				//Affichage de nombre de messages à envoyer, plus leur taille
 				printf("Nombre de messages à envoyer: %i\n", nb_message);
-				printf("Longueur de messages à envoyer: %i\n, par défaut", longueur_message);
+				printf("Longueur de messages à envoyer: %i, par défaut\n", longueur_message);
 				printf("Boite vers laquelle on envoye les messages: %i\n", num_cible);
 
 				//Affichage de numéro de port et machine destinataire:
@@ -215,13 +213,6 @@ int main(int argc, char **argv){
 				//Message d'ID
 				message_identification message_id_emetteur = {1/*emetteur*/, num_cible, longueur_message, nb_message};
 
-				/*
-				printf("Em ou recep: %i\n", message_id_emetteur.emetteur_ou_recepteur);
-				printf("cible: %i\n", message_id_emetteur.num_cible);
-				printf("long: %i\n", message_id_emetteur.long_message);
-				printf("nbr: %i\n", message_id_emetteur.nbr_message);
-				*/
-
 
 				int lg_emis_ID = write(sock,&message_id_emetteur, sizeof(message_id_emetteur));
 				if (lg_emis_ID<1){
@@ -239,9 +230,6 @@ int main(int argc, char **argv){
 						int lg_emis = write(sock, message, taille_message);
 						if (lg_emis < 0){
 								printf("le message %i ne s'est pas envoyé\n", i+1);
-						}
-						else{
-								printf("Succes d'envoi numéro %i\n", i+1);
 						}
 				}
 
@@ -286,7 +274,7 @@ int main(int argc, char **argv){
 						printf("Le message d'identification de s'est pas envoyé\n");
 				}
 
-				//Pour recuperer le nombre de messages à recevoir:
+				//Pour recuperer le nombre de messages à recevoir et les éventuels messages d'erreur:
 				message_identification nombre_a_recevoir;
 				int taille_message_lu_ID = read(sock,&nombre_a_recevoir,sizeof(nombre_a_recevoir));
 				if (taille_message_lu_ID < 0){
@@ -295,31 +283,35 @@ int main(int argc, char **argv){
 
 				int	nbr_reception = nombre_a_recevoir.nbr_message;
 
-				char pmesg[100000];
-				int taille_max = sizeof(pmesg);
-				int nbr_messages_lu = 0;
+				switch(nbr_reception){
+						case -2:	//Aucune boite dans la liste
+								printf("ERREUR: Il n'y a aucune boite dans la liste\n");
+								break;
+						case -1:	//Boite n'est pas dans la liste
+								printf("ERREUR: La boite cible n'est pas dans la liste\n");
+								break;
+						case -3:	//Boite est vide
+								printf("ERREUR: La boite est vide\n");
+								break;
+						default:	//Reception et affichage de messages qui arrivent:
+									
+								char pmesg[100000];
+								int taille_max = sizeof(pmesg);
 
-				ssize_t read_accept = 1;
-				while (read_accept !=0){
-						read_accept = read(sock,pmesg + nbr_messages_lu, taille_max-nbr_messages_lu);
-						nbr_messages_lu += read_accept;
-				}
+								int nbr_messages_lu = 0;
+								ssize_t read_accept = 1;
+								while (read_accept !=0){
+										read_accept = read(sock,pmesg + nbr_messages_lu, taille_max-nbr_messages_lu);
+										nbr_messages_lu += read_accept;
+								}
 
-				//printf("nbr messages lu: %i\n", nbr_reception);
-				//printf("pmesg: %s\n", pmesg);
-
-				int j;
-				//printf("TEST: longueur message: %i\n", longueur_message);
-
-				for (j=0;j<nbr_reception;j++){
-						printf("PUITS: Reception nr. %i (%i) ",j+1, longueur_message);
-						afficher_message(pmesg + j*(longueur_message) + j/*((j == 0) ? 0 : 1)*/, longueur_message);
-						printf("\n");
-				}
-				//free(padr_em);
-
-				if (shutdown(sock, SHUT_RDWR)<0){printf("échec de shutdown de connexion sock\n");}
-				if (close(sock)<0){printf("échec de fermeture de connexion sock\n");}
+								int j;
+								for (j=0;j<nbr_reception;j++){
+										printf("Récepteur: Reception nr. %i (%i) ",j+1, longueur_message);
+										afficher_message(pmesg + j*(longueur_message) + j, longueur_message);
+										printf("\n");
+								}
+				}//Fin switch
 		}//Fin recepteur
 
 		//Partie BAL
@@ -336,8 +328,10 @@ int main(int argc, char **argv){
 				bind(sock,(struct sockaddr*) &adresse_locale,sizeof(adresse_locale));
 
 
-				int compteur = 0;
-				while(compteur < 20){
+				int repetitions = 0; //Pour que la BAL continue a tourner après avoir repondu à plusieurs requêtes
+				while(repetitions < 20){
+						printf("\n==========================================================================\n");
+						printf("BAL en attente\n\n");
 						if (listen(sock, 10)<0){printf("acceptation de la connexion niveau serveur a échoué\n");}
 
 						socklen_t adr_em = sizeof(struct sockaddr);
@@ -361,11 +355,12 @@ int main(int argc, char **argv){
 						int lg = message_id_client.long_message;
 						int	nb = message_id_client.nbr_message;
 
-						printf("Type de client: %s, cible: %i, nombre de messages: %i\n", ((type_client == emetteur) ? "emetteur" : "recepteur"), cible, nb);
+						printf("Type de client: %s, cible: %i\n", ((type_client == emetteur) ? "emetteur" : "recepteur"), cible);
 
 						//Cas où client est un emetteur
 						if (type_client == emetteur){
-								//printf("Le client est emetteur\n");
+
+								printf("Nombre de messages à inserer: %i\n", nb);
 
 								char pmesg[1000000];
 								int taille_max = sizeof(pmesg);
@@ -373,72 +368,66 @@ int main(int argc, char **argv){
 
 								ssize_t read_accept = 1;
 								while (read_accept != 0){
-										printf("test\n");
 										read_accept = read(sock_accept,pmesg + nbr_messages_lu, taille_max-nbr_messages_lu);
 										nbr_messages_lu += read_accept;
 								}
 
-								//printf("pmesg: %s\n", pmesg);
 
 								insererLettres(&tete,pmesg,cible,nb,lg);
-								printf("Les boites dans la liste:\n");
-								afficherBoites(tete);
-								printf("\n====================================================\n");
-								printf("Les lettres dans la boite ciblée:\n");
-								afficherLettres(tete, cible);
 						}
 						else if (type_client == recepteur){
-								//printf("Le client est recepteur\n");
 
-								//Pour sortir le nombre de lettres à envoyer:
-								boiteCellule *auxBoite = tete.premiere_Boite;
-								while ((auxBoite -> nbr_boite) != cible && auxBoite -> prochaineBoite != NULL){ //Parcour le la liste pour trouver la boite ciblé
-										auxBoite = auxBoite -> prochaineBoite;
-								}
-								//Au fin du while, auxBoite pointe vers le boite ciblé.
-								nb = auxBoite -> nombre_des_lettres;
+								/*
+								 * Avant de sortir les messages, on verifie que:
+								 * Il y a au moins 1 boite dans la liste
+								 * La boite cible est dans la liste
+								 * La boite cible est non-vide
+								 * 
+								 * Pour cela, on utilise la fonction boiteInfo() 
+								 *
+								 * Avant d'envoyer les messages, on envoye un message d'ID avec un message d'erreur, ou le nombre de messages
+								 * à envoyer si il n'y a aucun erreur. Pour envoyer l'information, 
+								 * on utilise le champ long_message d'un struct message_identification
+								 */
 
-								message_identification nombre_messages_pour_emetteur = {0, 0, 0,nb};
-								printf("Nombre des lettres à envoyer: %i\n", nombre_messages_pour_emetteur.nbr_message);
+								int check_info_boite = boiteInfo(tete, cible);
+								message_identification nombre_messages_pour_emetteur = {0, 0, 0,check_info_boite};
 
 								//Envoyer message d'ID
 								int lg_emis_ID_pour_emetteur = write(sock_accept,&nombre_messages_pour_emetteur, sizeof(nombre_messages_pour_emetteur));
 								if (lg_emis_ID_pour_emetteur<1){
 										printf("Le message d'identification de s'est pas envoyé\n");
 								}
-								//printf("Message ID envoyé\n");
 
+								switch(check_info_boite){
+										case -2:	//Aucune boite dans la liste
+												printf("Il n'y a aucune boite dans la liste\n");
+												break;
+										case -1:	//Boite n'est pas dans la liste
+												printf("La boite cible n'est pas dans la liste\n");
+												break;
+										case -3:	//Boite est vide
+												printf("La boite est vide\n");
+												break;
+										default:	//Envoi des messages:
 
+												printf("Nombre des lettres à envoyer: %i\n", nombre_messages_pour_emetteur.nbr_message);
 
-								char message_pour_recepteur[longueur_message+1];
-								int sortie_enleverLettre = 0;
-								int compt = 0;
-								while (sortie_enleverLettre != -3){
-										printf("compteur: %i\n", compt);
-										sortie_enleverLettre = enleverLettre(tete,cible,message_pour_recepteur);
-										if (sortie_enleverLettre == -2){
-												printf("La BAL est vide");
-												char retour[] = "La BAL est vide";
-												if (write(sock_accept,retour,sizeof(retour)) < 0){printf("Message BAL vide ne s'est pas envoyé\n");}
-										}
-										else if (sortie_enleverLettre == -1){
-												printf("La boite n'existe pas");
-												char retour[] = "La boite n'existe pas";
-												if (write(sock_accept,retour,sizeof(retour)) < 0){printf("Message boite n'existe pas ne s'est pas envoyé\n");}
-										}
-										else if (sortie_enleverLettre != -3){
-												//printf("Message à envoyer TEST: %s\n", message_pour_recepteur);
-												message_pour_recepteur[30] = 'X';
-												if (write(sock_accept,message_pour_recepteur,sizeof(message_pour_recepteur)) < 0){printf("Message ne s'est pas envoyé\n");}
-										}
+												char message_pour_recepteur[longueur_message+1];
 
-										compt++;
-								}
+												int i;
+												for (i=0;i<check_info_boite;i++){
+														enleverLettre(tete,cible,message_pour_recepteur);
+														if (write(sock_accept,message_pour_recepteur,sizeof(message_pour_recepteur)) < 0){printf("Message ne s'est pas envoyé\n");}
+														printf("Succès d'envoi nr. %i\n", i +1);
+												}
+								}//Fin switch
 						}
 						if (shutdown(sock_accept, SHUT_RDWR)<0){printf("échec de shutdown de connexion sock accept\n");}
 						if (close(sock_accept)<0){printf("échec de fermeture de connexion sock accept\n");}	
-						compteur++;
+						repetitions++;
 				}
+				//To be tested: put these shutdowns inside the big loop, as well as creation of socket
 				if (shutdown(sock, SHUT_RDWR)<0){printf("échec de shutdown de connexion sock\n");}
 				if (close(sock)<0){printf("échec de fermeture de connexion sock\n");}
 		}//Fin BAL
