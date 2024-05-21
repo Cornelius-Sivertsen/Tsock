@@ -188,7 +188,6 @@ void ajouteLettre(struct lettreCellule** head, char* mesg)
 void insererLettres(struct BAL* tete, char* mesg, int cible, int nbr_messages, int long_messages)
 {
 		if (ajouteBoite(tete, cible) != -1) //Ajout de la boîte ciblée dans la liste avec un message indiquant si la boîte existe déjà
-										 .
 		{
 				printf("\nOn a Ajouté boite nr: %i\n", cible);
 		}
@@ -210,12 +209,6 @@ void insererLettres(struct BAL* tete, char* mesg, int cible, int nbr_messages, i
 		for (i=0;i<nbr_messages;i++)
 		{
 				strncpy(Lettre,(mesg+i*long_messages),long_messages);
-
-				//TODO: for (j=0;
-
-				
-
-
 				Lettre[long_messages] = '\0';
 				ajouteLettre(head,Lettre);
 				(aux -> nombre_des_lettres)++;
