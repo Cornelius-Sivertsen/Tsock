@@ -209,6 +209,7 @@ int main(int argc, char **argv){
 						int i;
 						for (i=0;i<nb_message;i++){ //Boucle pour construire et envoyer les messages
 								construire_message(message, Alphabet[i % 26], longueur_message, i+1);
+								printf("Envoi nr. %i: [%s]\n", i+1, message);
 								int lg_emis = sendto(sock,message,taille_message,0,(struct sockaddr*)&adresse_destinataire,sizeof(adresse_destinataire));
 								if (lg_emis < 0){
 										printf("Le message nr. %i ne s'est pas envoyé\n", i+1);
