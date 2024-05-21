@@ -1,3 +1,5 @@
+Pour le mini-rapport du BE: [cliquez ici](/Mini-rapport.md)
+
 # Projet tsock, 3ième année AE, INSA-Toulouse.
 
 L'objectif du BE est de réaliser une application de boîtes aux lettres sur Internet en utilisant l'API socket. Le langage de programmation utilisé est le C. 
