@@ -88,6 +88,19 @@ int ajouteBoite(struct BAL * BAL, int cible);
 //LONGUEURLETTRESMAX
 void ajouteLettre(struct lettreCellule** head, char* mesg);
 
+//Fonction qui retourne information sur une boite.
+//
+//Paramètres d'entrée:
+//tete: struct qui pointe vers la tete de la liste des boites
+//cible: le numéro de boite
+//
+//Valeurs de sortie:
+//-2 Si il n'y a aucune boite dans la liste.
+//-1 Si la boite ciblée n'est pas dans la liste.
+//-3 Si la boite existe, mais elle est vide.
+//Sinon: retourne le nombre de lettres dans la boite.
+int boiteInfo(struct BAL tete, int cible);
+
 
 //Fonction qui affiche toutes les boites dans une liste des boites,
 //avec leur numéro de boite, et combien lettres elles contiennent.

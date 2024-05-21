@@ -257,3 +257,33 @@ int enleverLettre(BAL tete, int cible, char* LetterOut)
 		return 0;
 }
 
+//Fonction qui retourne information sur une boite.
+//
+//Paramètres d'entrée:
+//tete: struct qui pointe vers la tete de la liste des boites
+//cible: le numéro de boite
+//
+//Valeurs de sortie:
+//-2 Si il n'y a aucune boite dans la liste.
+//-1 Si la boite ciblée n'est pas dans la liste.
+//-3 Si la boite existe, mais elle est vide.
+//Sinon: retourne le nombre de lettres dans la boite.
+int boiteInfo(struct BAL tete, int cible){
+		if (tete.premiere_Boite == NULL) return -2; //Aucune boite dans la liste
+
+		boiteCellule* aux = tete.premiere_Boite;
+
+		while(aux -> prochaineBoite != NULL && (aux -> nbr_boite) != cible)
+		{
+				aux = aux -> prochaineBoite;
+		}
+		//Aux pointe soit sur la boîte ciblée soit sur la dernière boîte. Si il ne pointe pas sur la boîte ciblée, cela veut dire qu'elle n'existe pas
+
+		if (!(aux -> nbr_boite == cible)) return -1;//La boite cible n'est pas dans la liste.
+
+		if (aux -> premLettre == NULL) return -3; //La boite existe, mais elle est vide.
+
+		//En arrivant ici, la boite est dans la liste, et est non-vide. On peut alors retourner le nombre de lettres
+
+		return aux -> nombre_des_lettres;
+}
