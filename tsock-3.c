@@ -83,8 +83,6 @@ typedef struct struct_message_identification{
 
 
 int main(int argc, char **argv){
-
-
 		//Récuperation des paramètres d'entrée:
 		int c;
 		extern char *optarg;
@@ -96,6 +94,10 @@ int main(int argc, char **argv){
 
 		while ((c = getopt(argc, argv, "e:r:bn:l:")) != -1) {
 				switch (c) {
+						case 'l':
+								printf("tsock-v3 travaille avec des messages de longueur fixe. Relancez le programme sans option -l svp.\n");
+								exit(1);
+								break;
 						case 'n':
 								nb_message = atoi(optarg);
 								break;
@@ -129,11 +131,6 @@ int main(int argc, char **argv){
 				}
 		}
 
-		//Affectuation des valeurs défauts
-		if (nb_message == -1){
-				nb_message = DEF_NOMBRE_MESSAGES;
-		}
-
 
 		//Affichage d'information sur paramètres d'entrée
 		if (Programme == pas_defini) {
@@ -142,21 +139,33 @@ int main(int argc, char **argv){
 		}
 		else if (Programme == emetteur) {
 				printf("On est dans l'emetteur\n");
+				
+				//Affectuation de valeur défaut pour nombre de messages.
+				if (nb_message == -1){
+						nb_message = DEF_NOMBRE_MESSAGES;
+				}
 
 				//Affichage de nombre de messages à envoyer, plus leur taille
 				printf("Nombre de messages à envoyer: %i\n", nb_message);
-				printf("Longueur de messages à envoyer: %i\n", longueur_message);
+				printf("Longueur de messages à envoyer: %i\n, par défaut", longueur_message);
+				printf("Boite vers laquelle on envoye les messages: %i\n", num_cible);
 
 				//Affichage de numéro de port et machine destinataire:
 				printf("Machine destinataire: %s | VERIFIEZ \n", argv[argc-2]);
 				printf("Port destinataire: %i | VERIFIEZ\n", atoi(argv[argc-1]));
+
+
 		}
 		else if (Programme == recepteur){
+
+				if (nb_message != -1){
+						printf("L'option -n ne sert à rien pour le récepteur, relancer le programme sans -n svp.\n");
+						exit(1);
+				}
+
 				printf("on est dans le recepteur\n");
 
-				//Affichage de nombre de messages à récevoir
-				printf("Nombre de messages à recevoir : %i\n", nb_message);
-
+				printf("Récuperation de tous les messages dans la boite ciblée, (boite nr. %i)\n", num_cible);
 				printf("Longueur de messages à recevoir : %i\n", longueur_message);
 				//Affichage de port d'entrée
 				printf("Numéro de port d'entrée: %i | VERIFIEZ\n", atoi(argv[argc-1]));
@@ -165,6 +174,12 @@ int main(int argc, char **argv){
 
 		else{
 				printf("On est dans la BAL\n");
+
+				if (nb_message != -1){
+						printf("L'option -n ne sert à rien pour la BAL, relancer le programme sans -n svp.\n");
+						exit(1);
+				}
+
 				//Affichage de port d'entrée
 				printf("Numéro de port d'entrée: %i | VERIFIEZ\n", atoi(argv[argc-1]));
 		}
