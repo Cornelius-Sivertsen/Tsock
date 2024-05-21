@@ -1,4 +1,3 @@
-//TEST
 /* librairie standard ... */
 #include <stdlib.h>
 /* pour getopt */
@@ -184,6 +183,8 @@ int main(int argc, char **argv){
 		}
 		else{
 				printf("On est dans la BAL\n");
+				//Affichage de port d'entrée
+				printf("Numéro de port d'entrée: %i | VERIFIEZ\n", atoi(argv[argc-1]));
 		}
 
 
