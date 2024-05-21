@@ -1,6 +1,5 @@
 //TODO: remove -n -l for recepteur
 //TODO: fix BAL doing too many loops when BAL is empty
-//TODO: remove -l altogether
 /* librairie standard ... */
 #include <stdlib.h>
 /* pour getopt */
@@ -97,15 +96,6 @@ int main(int argc, char **argv){
 
 		while ((c = getopt(argc, argv, "e:r:bn:l:")) != -1) {
 				switch (c) {
-						/*
-						case 'l':
-								longueur_message = atoi(optarg);
-								if ((Programme == emetteur) && (longueur_message <=5)){
-										printf("Pour l'emetteur, la longueur de messages doit être plus grande que 5!\n");
-										exit(1);
-								}
-								break;
-								*/
 						case 'n':
 								nb_message = atoi(optarg);
 								break;
