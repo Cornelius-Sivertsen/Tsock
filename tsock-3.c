@@ -1,3 +1,6 @@
+//TODO: remove -n -l for recepteur
+//TODO: fix BAL doing too many loops when BAL is empty
+//TODO: remove -l altogether
 /* librairie standard ... */
 #include <stdlib.h>
 /* pour getopt */
@@ -87,13 +90,14 @@ int main(int argc, char **argv){
 		int c;
 		extern char *optarg;
 		extern int optind;
-		int longueur_message = -1; //Nombre de messages à envoyer, par défaut : 30
+		int longueur_message = DEF_LONGUEUR_MESSAGES; //Nombre de messages à envoyer, par défaut : 30
 		int nb_message = -1; /* Nb de messages à envoyer ou à recevoir, par défaut : 10 en émission, infini en réception */
 		int num_cible = -1; //Cible pour emetteur ou recepteur
 		enum{emetteur = 0, recepteur = 1, bal = 2, pas_defini = -1} Programme = pas_defini;
 
 		while ((c = getopt(argc, argv, "e:r:bn:l:")) != -1) {
 				switch (c) {
+						/*
 						case 'l':
 								longueur_message = atoi(optarg);
 								if ((Programme == emetteur) && (longueur_message <=5)){
@@ -101,6 +105,7 @@ int main(int argc, char **argv){
 										exit(1);
 								}
 								break;
+								*/
 						case 'n':
 								nb_message = atoi(optarg);
 								break;
@@ -134,6 +139,12 @@ int main(int argc, char **argv){
 				}
 		}
 
+		//Affectuation des valeurs défauts
+		if (nb_message == -1){
+				nb_message = DEF_NOMBRE_MESSAGES;
+		}
+
+
 		//Affichage d'information sur paramètres d'entrée
 		if (Programme == pas_defini) {
 				printf("usage: cmd [-p|-s][-n ##]\n");
@@ -141,14 +152,6 @@ int main(int argc, char **argv){
 		}
 		else if (Programme == emetteur) {
 				printf("On est dans l'emetteur\n");
-
-				//Affectuation des valeurs défauts
-				if (nb_message == -1){
-						nb_message = DEF_NOMBRE_MESSAGES;
-				}
-				if (longueur_message == -1){
-						longueur_message = DEF_LONGUEUR_MESSAGES;
-				}
 
 				//Affichage de nombre de messages à envoyer, plus leur taille
 				printf("Nombre de messages à envoyer: %i\n", nb_message);
@@ -162,25 +165,14 @@ int main(int argc, char **argv){
 				printf("on est dans le recepteur\n");
 
 				//Affichage de nombre de messages à récevoir
-				if (nb_message == -1){
-						printf("Nombre de messages à recevoir : infini, par defaut\n");
-						nb_message = 100000;
-				}
-				else{
-						printf("Nombre de messages à recevoir : %i\n", nb_message);
-				}
-				if (longueur_message == -1){
-						printf("Longueur de messages à recevoir : 30, par defaut\n");
-						longueur_message = 30;
-				}
-				else{
-						printf("Longueur de messages à recevoir : %i\n", longueur_message);
-				}
+				printf("Nombre de messages à recevoir : %i\n", nb_message);
 
-
+				printf("Longueur de messages à recevoir : %i\n", longueur_message);
 				//Affichage de port d'entrée
 				printf("Numéro de port d'entrée: %i | VERIFIEZ\n", atoi(argv[argc-1]));
+
 		}
+
 		else{
 				printf("On est dans la BAL\n");
 				//Affichage de port d'entrée
@@ -218,10 +210,12 @@ int main(int argc, char **argv){
 				//Message d'ID
 				message_identification message_id_emetteur = {1/*emetteur*/, num_cible, longueur_message, nb_message};
 
+				/*
 				printf("Em ou recep: %i\n", message_id_emetteur.emetteur_ou_recepteur);
 				printf("cible: %i\n", message_id_emetteur.num_cible);
 				printf("long: %i\n", message_id_emetteur.long_message);
 				printf("nbr: %i\n", message_id_emetteur.nbr_message);
+				*/
 
 
 				int lg_emis_ID = write(sock,&message_id_emetteur, sizeof(message_id_emetteur));
@@ -280,13 +274,21 @@ int main(int argc, char **argv){
 				}
 
 				//Message d'ID
-				message_identification message_id_emetteur = {0/*recepteur*/, num_cible, 0, 0};
+				message_identification message_id_emetteur = {0/*recepteur*/, num_cible, longueur_message, nb_message};
 
 				int lg_emis_ID = write(sock,&message_id_emetteur, sizeof(message_id_emetteur));
 				if (lg_emis_ID<1){
 						printf("Le message d'identification de s'est pas envoyé\n");
 				}
 
+				//Pour recuperer le nombre de messages à recevoir:
+				message_identification nombre_a_recevoir;
+				int taille_message_lu_ID = read(sock,&nombre_a_recevoir,sizeof(nombre_a_recevoir));
+				if (taille_message_lu_ID < 0){
+						printf("Pas bon pour la recpetion d'ID\n");
+				}
+
+				int	nbr_reception = nombre_a_recevoir.nbr_message;
 
 				char pmesg[100000];
 				int taille_max = sizeof(pmesg);
@@ -298,18 +300,15 @@ int main(int argc, char **argv){
 						nbr_messages_lu += read_accept;
 				}
 
-				printf("pmesg: %s\n", pmesg);
-
-				nbr_messages_lu /= longueur_message;
-				if (nbr_messages_lu>nb_message){
-						nbr_messages_lu = nb_message;
-				}
+				//printf("nbr messages lu: %i\n", nbr_reception);
+				//printf("pmesg: %s\n", pmesg);
 
 				int j;
+				//printf("TEST: longueur message: %i\n", longueur_message);
 
-				for (j=0;j<nbr_messages_lu;j++){
+				for (j=0;j<nbr_reception;j++){
 						printf("PUITS: Reception nr. %i (%i) ",j+1, longueur_message);
-						afficher_message(pmesg + j*longueur_message, longueur_message);
+						afficher_message(pmesg + j*(longueur_message) + j/*((j == 0) ? 0 : 1)*/, longueur_message);
 						printf("\n");
 				}
 				//free(padr_em);
@@ -333,7 +332,7 @@ int main(int argc, char **argv){
 
 
 				int compteur = 0;
-				while(compteur < 5){
+				while(compteur < 20){
 						if (listen(sock, 10)<0){printf("acceptation de la connexion niveau serveur a échoué\n");}
 
 						socklen_t adr_em = sizeof(struct sockaddr);
@@ -357,11 +356,11 @@ int main(int argc, char **argv){
 						int lg = message_id_client.long_message;
 						int	nb = message_id_client.nbr_message;
 
-						printf("Type de client: %s, cible: %i, longueur: %i, nombre: %i\n", ((type_client == emetteur) ? "emetteur" : "recepteur"), cible, lg, nb);
+						printf("Type de client: %s, cible: %i, nombre de messages: %i\n", ((type_client == emetteur) ? "emetteur" : "recepteur"), cible, nb);
 
 						//Cas où client est un emetteur
 						if (type_client == emetteur){
-								printf("Le client est emetteur\n");
+								//printf("Le client est emetteur\n");
 
 								char pmesg[1000000];
 								int taille_max = sizeof(pmesg);
@@ -374,7 +373,7 @@ int main(int argc, char **argv){
 										nbr_messages_lu += read_accept;
 								}
 
-								printf("pmesg: %s\n", pmesg);
+								//printf("pmesg: %s\n", pmesg);
 
 								insererLettres(&tete,pmesg,cible,nb,lg);
 								printf("Les boites dans la liste:\n");
@@ -384,10 +383,29 @@ int main(int argc, char **argv){
 								afficherLettres(tete, cible);
 						}
 						else if (type_client == recepteur){
-								printf("Le client est recepteur\n");
+								//printf("Le client est recepteur\n");
 
-								char message_pour_recepteur[LONGUEURLETTRESMAX];
+								//Pour sortir le nombre de lettres à envoyer:
+								boiteCellule *auxBoite = tete.premiere_Boite;
+								while ((auxBoite -> nbr_boite) != cible && auxBoite -> prochaineBoite != NULL){ //Parcour le la liste pour trouver la boite ciblé
+										auxBoite = auxBoite -> prochaineBoite;
+								}
+								//Au fin du while, auxBoite pointe vers le boite ciblé.
+								nb = auxBoite -> nombre_des_lettres;
 
+								message_identification nombre_messages_pour_emetteur = {0, 0, 0,nb};
+								printf("Nombre des lettres à envoyer: %i\n", nombre_messages_pour_emetteur.nbr_message);
+
+								//Envoyer message d'ID
+								int lg_emis_ID_pour_emetteur = write(sock_accept,&nombre_messages_pour_emetteur, sizeof(nombre_messages_pour_emetteur));
+								if (lg_emis_ID_pour_emetteur<1){
+										printf("Le message d'identification de s'est pas envoyé\n");
+								}
+								//printf("Message ID envoyé\n");
+
+
+
+								char message_pour_recepteur[longueur_message+1];
 								int sortie_enleverLettre = 0;
 								int compt = 0;
 								while (sortie_enleverLettre != -3){
@@ -404,7 +422,8 @@ int main(int argc, char **argv){
 												if (write(sock_accept,retour,sizeof(retour)) < 0){printf("Message boite n'existe pas ne s'est pas envoyé\n");}
 										}
 										else if (sortie_enleverLettre != -3){
-												printf("Message à envoyer: %s\n", message_pour_recepteur);
+												//printf("Message à envoyer TEST: %s\n", message_pour_recepteur);
+												message_pour_recepteur[30] = 'X';
 												if (write(sock_accept,message_pour_recepteur,sizeof(message_pour_recepteur)) < 0){printf("Message ne s'est pas envoyé\n");}
 										}
 
