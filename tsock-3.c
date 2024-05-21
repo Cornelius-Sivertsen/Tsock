@@ -233,8 +233,6 @@ int main(int argc, char **argv){
 						}
 				}
 
-				if (shutdown(sock, SHUT_RDWR)<0){printf("échec de fermeture de connexion sock accept\n");}
-				if (close(sock)<0){printf("échec de fermeture de connexion sock\n");}
 		}//Fin emetteur
 
 		//Partie recepteur
@@ -339,9 +337,7 @@ int main(int argc, char **argv){
 						struct sockaddr *padr_em=malloc(sizeof(struct sockaddr_in));
 
 						int sock_accept;
-						sock_accept = accept(sock,padr_em,plg_adr_em);
-						if (sock_accept <0 ){
-								printf("échec d'acceptation de la connexion au serveur\n");
+						sock_accept = accept(sock,padr_em,plg_adr_em); if (sock_accept <0 ){ printf("échec d'acceptation de la connexion au serveur\n");
 						}
 
 						message_identification message_id_client;
@@ -424,12 +420,11 @@ int main(int argc, char **argv){
 								}//Fin switch
 						}
 						if (shutdown(sock_accept, SHUT_RDWR)<0){printf("échec de shutdown de connexion sock accept\n");}
-						if (close(sock_accept)<0){printf("échec de fermeture de connexion sock accept\n");}	
+						if (close(sock_accept)<0){printf("échec de fermeture de sock accept\n");}	
 						repetitions++;
 				}
-				//To be tested: put these shutdowns inside the big loop, as well as creation of socket
 				if (shutdown(sock, SHUT_RDWR)<0){printf("échec de shutdown de connexion sock\n");}
-				if (close(sock)<0){printf("échec de fermeture de connexion sock\n");}
+				if (close(sock)<0){printf("échec de fermeture de sock\n");}
 		}//Fin BAL
 
 		return 0;
