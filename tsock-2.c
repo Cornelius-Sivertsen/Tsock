@@ -33,7 +33,7 @@ int chiffre(int nombre, int n){
 }
 
 //Fonction pour construire un message:
-//nbr est le numéro qui sera ajouté en tete du message. Commence à 0
+//nbr est le numéro qui sera ajouté en tête du message. Commence à 0
 void construire_message(char* message, char motif, int lg, int nbr){
 
 		//Pour avoir le numéro du message au debut
@@ -73,7 +73,7 @@ char Alphabet[26] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
 int main(int argc, char **argv){
 
 
-		//Récuperation des paramètres d'entrée:
+		//Recupération des paramètres d'entrés:
 		int c;
 		extern char *optarg;
 		extern int optind;
@@ -182,19 +182,19 @@ int main(int argc, char **argv){
 		//Partie UPD Source/Puits
 		if (Protocole == UDP){
 
-				//Creation du socket, commune pour source et puits
+				//Création du socket, commun pour source et puits
 				int sock = socket(AF_INET,SOCK_DGRAM,0);
-				if (sock < 0) {printf("Le creation du socket a echoue\n");}
+				if (sock < 0) {printf("La création du socket a échoué\n");}
 
 				//Partie Source (UDP)
 				if (Source_ou_puits == source){
 						//Construction de l'adresse destinataire
-						struct sockaddr_in adresse_destinataire; //Struct pour l'adresse du machine destinataire.
+						struct sockaddr_in adresse_destinataire; //Structure pour l'adresse de la machine destinataire.
 						adresse_destinataire.sin_family = AF_INET;
 						adresse_destinataire.sin_port = htons(atoi(argv[argc-1])); //Numéro de port destinataire.
 
 						struct hostent * machinedest;
-						if ((machinedest = gethostbyname(argv[argc-2])) == NULL) //"Nom" du machine destinataire
+						if ((machinedest = gethostbyname(argv[argc-2])) == NULL) //"Nom" de la machine destinataire
 						{ printf("erreur gethostbyname\n") ; 
 								exit(1) ; } 
 						memcpy( (char*)&(adresse_destinataire.sin_addr.s_addr),
@@ -202,7 +202,7 @@ int main(int argc, char **argv){
 										machinedest->h_length ) ;
 
 						//Construction et envoi des messages
-						//message stocke le string à envoyer à chaque tour de la boucle
+						//message stocké dans le string à envoyer à chaque tour de la boucle
 						char message[longueur_message + 1]; //+1 Pour le \0 à la fin
 						int taille_message = longueur_message * sizeof(char);
 
@@ -254,7 +254,7 @@ int main(int argc, char **argv){
 		//Partie TCP source/puits
 		else if (Protocole == TCP){
 
-				//Creation du socket, commune pour source et puits
+				//Creation du socket, commun pour source et puits
 				int sock = socket(AF_INET,SOCK_STREAM,0);
 				if (sock < 0) {printf("Le creation du socket a echoue\n");}
 
@@ -267,7 +267,7 @@ int main(int argc, char **argv){
 						adresse_destinataire.sin_port = htons(atoi(argv[argc-1])); //Numéro de port destinataire.
 
 						struct hostent * machinedest;
-						if ((machinedest = gethostbyname(argv[argc-2])) == NULL) //"Nom" du machine destinataire
+						if ((machinedest = gethostbyname(argv[argc-2])) == NULL) //"Nom" de la machine destinataire
 						{ printf("erreur gethostbyname\n") ; 
 								exit(1) ; } 
 						memcpy( (char*)&(adresse_destinataire.sin_addr.s_addr),
@@ -278,7 +278,7 @@ int main(int argc, char **argv){
 								printf("erreur de connexion au serveur, envoie du message impossible\n");
 						}
 
-						//Construction et envoie des messages
+						//Construction et envoi des messages
 						char message[longueur_message + 1]; //+1 Pour le \0 à la fin
 						int taille_message = longueur_message * sizeof(char);
 
@@ -294,12 +294,7 @@ int main(int argc, char **argv){
 										printf("Succes d'envoi numéro %i\n", i+1);
 								}
 						}
-						/*
-						   char eof = '\0';
-						   char *ptr_eof = &eof;
-						   int taille = sizeof(char);
-						   write(sock,ptr_eof,taille);
-						   */
+						
 						if (shutdown(sock, SHUT_RDWR)<0){printf("échec de fermeture de connexion sock accept\n");}
 						if (close(sock)<0){printf("échec de fermeture de connexion sock\n");}
 				}//Fin source TCP
@@ -313,7 +308,7 @@ int main(int argc, char **argv){
 						adresse_locale.sin_family=AF_INET;
 						adresse_locale.sin_addr.s_addr=INADDR_ANY;
 
-						bind(sock,(struct sockaddr*) &adresse_locale,sizeof(adresse_locale));
+						bind(sock,(struct sockaddr*) &adresse_locale,sizeof(adresse_locale)); //Bind de l'adresse locale du puits
 
 						if (listen(sock, 10)<0){printf("acceptation de la connexion niveau serveur a échoué\n");}
 
@@ -322,17 +317,17 @@ int main(int argc, char **argv){
 						struct sockaddr *padr_em=malloc(sizeof(struct sockaddr_in));
 
 						int sock_accept;
-						sock_accept = accept(sock,padr_em,plg_adr_em);
+						sock_accept = accept(sock,padr_em,plg_adr_em); //acceptation de la demande de connexion
 						if (sock_accept <0 ){
 								printf("échec d'acceptation de la connexion au serveur\n");
 						}
 
-						char pmesg[100000];
+						char pmesg[100000]; //tableau pour stocker les messages à l'arrivée
 						int taille_max = sizeof(pmesg);
 						int nbr_messages_lu = 0;
 
 						ssize_t read_accept = 1;
-						while (read_accept !=0){
+						while (read_accept !=0){//lis les messages qui sont recus et les stockes dans pmesg
 								read_accept = read(sock_accept,pmesg + nbr_messages_lu, taille_max-nbr_messages_lu);
 								nbr_messages_lu += read_accept;
 						}
@@ -344,7 +339,7 @@ int main(int argc, char **argv){
 
 						int j;
 
-						for (j=0;j<nbr_messages_lu;j++){
+						for (j=0;j<nbr_messages_lu;j++){//découpe les messages pour les afficher
 								printf("PUITS: Reception nr. %i (%i) ",j+1, longueur_message);
 								afficher_message(pmesg + j*longueur_message, longueur_message);
 								printf("\n");
