@@ -47,13 +47,21 @@ Source :
 ```
 
 **TSOCK-V3** :
-- Pour compiler tsock-v3.c
+
+
+  1) compiler la librairie libBAL.h
+```
+  gcc -Wextra -Wall -o libBAL.o -c libBAL.c
+
+```
+
+  2) Compiler tsock-v3
   ```
-  gcc -Wextra -Wall -o tsock-v3.exe tsock-v3.c
+  gcc -Wextra -Wall -o tsock-v3.exe tsock-v3.c libBAL.o -lm
   
   ```
 
-  - Utilisation :
+  3) Utilisation :
 
     1) Ouvrir la BAL :
        ```
