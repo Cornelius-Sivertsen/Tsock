@@ -1,3 +1,4 @@
+//TEST
 /* librairie standard ... */
 #include <stdlib.h>
 /* pour getopt */
@@ -186,12 +187,13 @@ int main(int argc, char **argv){
 		printf("Protocole : TCP\n");
 
 
-		//Creation du socket, commune pour emetteur, recepteur et BAL
-		int sock = socket(AF_INET,SOCK_STREAM,0);
-		if (sock < 0) {printf("Le creation du socket a echoue\n");}
 
 		//Partie emetteur
 		if (Programme == emetteur){
+
+				//Creation du socket local
+				int sock = socket(AF_INET,SOCK_STREAM,0);
+				if (sock < 0) {printf("Le creation du socket a echoue\n");}
 
 				//Construction de l'adresse destinataire
 				struct sockaddr_in adresse_destinataire; //Struct pour l'adresse du machine destinataire.
@@ -233,12 +235,16 @@ int main(int argc, char **argv){
 						}
 				}
 
-				if (shutdown(sock, SHUT_RDWR)<0){printf("échec de fermeture de connexion sock accept\n");}
-				if (close(sock)<0){printf("échec de fermeture de connexion sock\n");}
+				if (shutdown(sock, SHUT_RDWR)<0){printf("échec de fermeture de connexion sock\n");}
+				if (close(sock)<0){printf("échec de fermeture du sock\n");}
 		}//Fin emetteur
 
 		//Partie recepteur
 		else if (Programme == recepteur){
+				
+				//Creation du socket local
+				int sock = socket(AF_INET,SOCK_STREAM,0);
+				if (sock < 0) {printf("Le creation du socket a echoue\n");}
 
 				//Creation de l'adresse locale
 				struct sockaddr_in adresse_locale;
@@ -312,6 +318,8 @@ int main(int argc, char **argv){
 										printf("\n");
 								}
 				}//Fin switch
+				if (shutdown(sock, SHUT_RDWR)<0){printf("échec de fermeture de connexion sock\n");}
+				if (close(sock)<0){printf("échec de fermeture du sock\n");}
 		}//Fin recepteur
 
 		//Partie BAL
@@ -319,17 +327,23 @@ int main(int argc, char **argv){
 				//Creation du liste chainée pour la BAL:
 				BAL tete = {0,NULL};
 
-				//Creation de l'adresse locale
-				struct sockaddr_in adresse_locale;
-				adresse_locale.sin_port = htons(atoi(argv[argc-1]));
-				adresse_locale.sin_family=AF_INET;
-				adresse_locale.sin_addr.s_addr=INADDR_ANY;
-
-				bind(sock,(struct sockaddr*) &adresse_locale,sizeof(adresse_locale));
-
-
 				int repetitions = 0; //Pour que la BAL continue a tourner après avoir repondu à plusieurs requêtes
 				while(repetitions < 20){
+
+
+						//Creation du socket local
+						int sock = socket(AF_INET,SOCK_STREAM,0);
+						if (sock < 0) {printf("Le creation du socket a echoue\n");}
+
+						//Creation de l'adresse locale
+						struct sockaddr_in adresse_locale;
+						adresse_locale.sin_port = htons(atoi(argv[argc-1]));
+						printf("socket: %i\n",atoi(argv[argc-1]));
+						adresse_locale.sin_family=AF_INET;
+						adresse_locale.sin_addr.s_addr=INADDR_ANY;
+
+						bind(sock,(struct sockaddr*) &adresse_locale,sizeof(adresse_locale));
+
 						printf("\n==========================================================================\n");
 						printf("BAL en attente\n\n");
 						if (listen(sock, 10)<0){printf("acceptation de la connexion niveau serveur a échoué\n");}
@@ -425,11 +439,10 @@ int main(int argc, char **argv){
 						}
 						if (shutdown(sock_accept, SHUT_RDWR)<0){printf("échec de shutdown de connexion sock accept\n");}
 						if (close(sock_accept)<0){printf("échec de fermeture de connexion sock accept\n");}	
+						if (shutdown(sock, SHUT_RDWR)<0){printf("échec de shutdown de connexion sock\n");}
+						if (close(sock)<0){printf("échec de fermeture de connexion sock\n");}
 						repetitions++;
 				}
-				//To be tested: put these shutdowns inside the big loop, as well as creation of socket
-				if (shutdown(sock, SHUT_RDWR)<0){printf("échec de shutdown de connexion sock\n");}
-				if (close(sock)<0){printf("échec de fermeture de connexion sock\n");}
 		}//Fin BAL
 
 		return 0;
