@@ -65,16 +65,16 @@ Source :
 
     1) Ouvrir la BAL :
        ```
-       .\tsock-v3.exe -b n°port
+       ./tsock-v3.exe -b n°port
 
        ```
     2) Emetteur
        ```
-        .\tsock-v3.exe -e n°cible nom_machine_BAL n°port_BAL //le n°cible est le numéro du récepteur pour lequel on veut envoyer les messages en passant par la BAL
+        ./tsock-v3.exe -e n°cible nom_machine_BAL n°port_BAL //le n°cible est le numéro du récepteur pour lequel on veut envoyer les messages en passant par la BAL
        
        ```
     3) Récepteur
        ```
-       .\tock-v3.exe -r n°cible nom_machine_BAL n°port_BAL //le n°cible est le numéro du l'émetteur dont on veut recevoir les messages qu'il a envoyé à la BAL
+       ./tsock-v3.exe -r n°cible nom_machine_BAL n°port_BAL //le n°cible est le numéro du l'émetteur dont on veut recevoir les messages qu'il a envoyé à la BAL
        
        ```
