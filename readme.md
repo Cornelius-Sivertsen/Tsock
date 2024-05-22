@@ -15,7 +15,7 @@ Le projet consiste de différents fichiers :
 
 Les commandes pour utiliser les programmes : 
 
-**TSOCK-V2** :
+## TSOCK-V2 :
 
 - Pour compiler tsock-v2:
 ```
@@ -42,41 +42,47 @@ Puit :
 ./tsock-v2.exe -p [-option n,l] n°port //laisse la possibilité à l'utilisateur de n'afficher que n message(s) de l longueur(s)
 
 ```
+
 Source :
 ```
 ./tsock-v2.exe -s [-option n,l] nom_destinataire port_destinataire 
 
 ```
 
-**TSOCK-V3** :
+## TSOCK-V3 :
 
 
-  1) compiler la librairie libBAL.h
+
+  ### compiler la librairie libBAL.h
+     
 ```
   gcc -Wextra -Wall -o libBAL.o -c libBAL.c
 
 ```
 
-  2) Compiler tsock-v3
+  ### Compiler tsock-v3
   ```
   gcc -Wextra -Wall -o tsock-v3.exe tsock-3.c libBAL.o -lm
   
   ```
 
-  3) Utilisation :
+  ### Utilisation :
 
-    1) Ouvrir la BAL :
-       ```
-       ./tsock-v3.exe -b n°port
-
-       ```
-    2) Emetteur
-       ```
-        ./tsock-v3.exe -e n°cible nom_machine_BAL n°port_BAL //le n°cible est le numéro du récepteur pour lequel on veut envoyer les messages en passant par la BAL
+  1: Ouvrir la BAL :
+  
+  ```
+  ./tsock-v3.exe -b n°port
+  ```
+    
+  2: Emetteur
+  
+  ```
+  ./tsock-v3.exe -e n°cible -n nbr_messages nom_machine_BAL n°port_BAL //le n°cible est le numéro du récepteur pour lequel on veut envoyer les messages en passant par la BAL
        
-       ```
-    3) Récepteur
-       ```
-       ./tsock-v3.exe -r n°cible nom_machine_BAL n°port_BAL //le n°cible est le numéro du l'émetteur dont on veut recevoir les messages qu'il a envoyé à la BAL
+  ```
+  3: Récepteur
+  
+  ```
+  ./tsock-v3.exe -r n°cible nom_machine_BAL n°port_BAL //le n°cible est le numéro du l'émetteur dont on veut recevoir les messages qu'il a envoyé à la BAL
        
-       ```
+  ```
