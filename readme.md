@@ -17,7 +17,12 @@ Les commandes pour utiliser les programmes :
 
 ## TSOCK-V2 :
 
-- Pour compiler tsock-v2:
+**Remarques:**
+
+- Quand tsock-v2 est lancé en mode puits en UDP sans option -n, le nombre de message à recevoir est infini (voir un nombre très grand). Alors, le programme ne va jamais s'arreter.
+- En mode puits, TCP, c'est à l'utilisateur de définir le longueur, et le nombre de messages à recevoir. Si l'utilisateur ne met pas les bonnes valeurs, le découpage des messages ne va pas se faire correctement.
+
+### Pour compiler tsock-v2:
 ```
 gcc -Wextra -Wall -o tsock-v2.exe tsock-2.c -lm
 
