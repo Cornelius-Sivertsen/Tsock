@@ -59,8 +59,8 @@ Source :
 **Remarque:** 
 
 tsock-v3 travaille avec des messages de longueur fixe = 30. Alors l'option -l n'existe pas.  
-De plus, le recepteur récupére toujours tous les messages dans la boite cible, alors l'option -n ne sert à rien pour le programme récepteur.  
-Nous rémarqons aussi que la BAL ne réponde qu'au 30 requêtes (récepteur ou émetteur) avant de se fermer. Ceci est géré par le macro NOMBRE_CLIENTS au début du tsock-3.c.
+De plus, le recepteur récupère toujours tous les messages dans la boite cible, alors l'option -n ne sert à rien pour le programme récepteur.  
+Nous remarquons aussi que la BAL ne répond qu'aux 30 premières requêtes (récepteur ou émetteur) avant de se fermer. Ceci est géré par le macro NOMBRE_CLIENTS au début du tsock-3.c.
 
 
   ### compiler la librairie libBAL.h
