@@ -26,6 +26,7 @@
 //Valeurs défauts:
 #define DEF_NOMBRE_MESSAGES 10
 #define DEF_LONGUEUR_MESSAGES 30
+#define NOMBRE_CLIENTS 30
 
 //Fonction qui retourne le n-ieme chiffre d'un nombre. n=0 signifie 10^0 (le plus pétit chiffre).
 int chiffre(int nombre, int n){
@@ -327,7 +328,7 @@ int main(int argc, char **argv){
 
 
 				int repetitions = 0; //Pour que la BAL continue a tourner après avoir repondu à plusieurs requêtes
-				while(repetitions < 20){
+				while(repetitions < NOMBRE_CLIENTS){
 						printf("\n==========================================================================\n");
 						printf("BAL en attente\n\n");
 						if (listen(sock, 10)<0){printf("acceptation de la connexion niveau serveur a échoué\n");}
