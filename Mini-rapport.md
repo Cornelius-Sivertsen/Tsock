@@ -1,6 +1,7 @@
 # Mini-rapport pour le BE
 
 ## Positionnement de notre production finale par rapport aux attendus du projet
+Les protocoles UDP et TCP fonctionnent sur le réseau local. 
 
 ## Ce qui marche et ce qui ne marche pas
 
