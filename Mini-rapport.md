@@ -1,6 +1,6 @@
 # Mini-rapport pour le BE
 
-Pour le fonctionnement des programmes. Lire le readme.md
+Pour le fonctionnement des programmes. Lire le [readme](./readme.md)
 
 ## Positionnement de notre production finale par rapport aux attendus du projet
 Partie TCP, UDP : **tsock-2.c**
